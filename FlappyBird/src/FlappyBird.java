@@ -1,7 +1,15 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 
 public class FlappyBird extends JPanel implements ActionListener, KeyListener {
@@ -14,6 +22,9 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
   Image birdImg;
   Image topPipeImg;
   Image bottomPipeImg;
+
+  //Bird sound
+  String birdSound = "C:\\Users\\aless\\JavaProjects\\FlappyBirdJavaProject\\FlappyBird\\src\\birdChirp.wav";
 
   //bird
   int birdX = boardWidth / 8;
@@ -66,11 +77,11 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 
   boolean gameOver = false;
   double score = 0;
+  int pipesSpawningTime = 1500;
 
 
   FlappyBird() {
     setPreferredSize(new Dimension(boardWidth, boardHeight));
-    //setBackground(Color.blue);
     setFocusable(true);
     addKeyListener(this);
 
@@ -84,8 +95,17 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     bird = new Bird(birdImg);
     pipes = new ArrayList<Pipe>();
 
+    placePipesAfterSetTime(pipesSpawningTime);
+
+    //game timer
+    gameLoop = new Timer(1000/60, this);
+    gameLoop.start();
+  }
+
+
+  private void placePipesAfterSetTime(int timeToWait) {
     //place pipes timer
-    placePipesTimer = new Timer(1500, new ActionListener() {
+    placePipesTimer = new Timer(timeToWait, new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         placePipes();
@@ -93,10 +113,6 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     });
 
     placePipesTimer.start();
-
-    //game timer
-    gameLoop = new Timer(1000/60, this);
-    gameLoop.start();
   }
 
   public void placePipes() {
@@ -132,13 +148,27 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 
     //score
     g.setColor(Color.white);
-    g.setFont(new Font("Arial", Font.PLAIN, 32));
+    g.setFont(new Font("Arial", Font.PLAIN, 20));
     if(gameOver) {
       g.drawString("Game Over: " + String.valueOf((int) score), 10, 35);
+      g.drawString("Press Spacebar To Restart The Game", 10, 60);
     } else {
       g.drawString(String.valueOf((int) score), 10, 35);
     }
+
   }
+
+  private void playSound(String soundName) {
+	try {
+		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(soundName).getAbsoluteFile());
+		Clip clip = AudioSystem.getClip();
+		clip.open(audioInputStream);
+		clip.start();
+	} catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+		System.out.println("Error with playing sound.");
+		ex.printStackTrace( );
+	}
+}
 
   public void move() {
     //bird
@@ -147,6 +177,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     bird.y += velocityY;
 
     //pipes
+
     for(int i = 0; i < pipes.size(); i++ ) {
       Pipe pipe = pipes.get(i);
       pipe.x += velocityX;
@@ -154,7 +185,13 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
       if(!pipe.passed && bird.x > pipe.x + pipe.width) {
         pipe.passed = true;
         score += 0.5;
+        if(score % 5 == 0) {
+          velocityX += -1;
+        }
       }
+
+      
+
 
       if(collision(bird, pipe)) {
         gameOver = true;
@@ -189,6 +226,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
   public void keyPressed(KeyEvent e) {
     if (e.getKeyCode() == KeyEvent.VK_SPACE) {
       velocityY = -9;
+      playSound(birdSound);
       if(gameOver) {
         //restart the game by resetting the conditions
         bird.y = birdY;
@@ -196,6 +234,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         pipes.clear();
         score = 0;
         gameOver = false;
+        velocityX = -4;
         gameLoop.start();
         placePipesTimer.start();
       }
