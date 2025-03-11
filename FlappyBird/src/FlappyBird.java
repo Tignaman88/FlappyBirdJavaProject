@@ -26,6 +26,11 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
   //Bird sound
   String birdSound = "C:\\Users\\aless\\JavaProjects\\FlappyBirdJavaProject\\FlappyBird\\src\\birdChirp.wav";
 
+  //Game over sound
+
+  String gameOverSound = "C:\\Users\\aless\\JavaProjects\\FlappyBirdJavaProject\\FlappyBird\\src\\gameOver.wav";
+  String backgroundGameMusic = "C:\\Users\\aless\\JavaProjects\\FlappyBirdJavaProject\\FlappyBird\\src\\backgroundGameMusic.wav";
+
   //bird
   int birdX = boardWidth / 8;
   int birdY = boardHeight / 2;
@@ -100,6 +105,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     //game timer
     gameLoop = new Timer(1000/60, this);
     gameLoop.start();
+    playBackgroundMusic(backgroundGameMusic);
   }
 
 
@@ -170,6 +176,18 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 	}
 }
 
+private void playBackgroundMusic(String soundName) {
+	try {
+		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(soundName).getAbsoluteFile());
+		Clip clip = AudioSystem.getClip();
+		clip.open(audioInputStream);
+		clip.loop(Clip.LOOP_CONTINUOUSLY);
+	} catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+		System.out.println("Error with playing sound.");
+		ex.printStackTrace( );
+	}
+}
+
   public void move() {
     //bird
     velocityY += gravity;
@@ -195,6 +213,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 
       if(collision(bird, pipe)) {
         gameOver = true;
+        playSound(gameOverSound);
       }
     }
 
