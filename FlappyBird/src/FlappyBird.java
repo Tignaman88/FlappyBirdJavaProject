@@ -80,6 +80,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
   Timer gameLoop;
   Timer placePipesTimer;
 
+  boolean startGame = false;
   boolean gameOver = false;
   double score = 0;
   int pipesSpawningTime = 1500;
@@ -102,10 +103,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 
     placePipesAfterSetTime(pipesSpawningTime);
 
-    //game timer
-    gameLoop = new Timer(1000/60, this);
-    gameLoop.start();
-    playBackgroundMusic(backgroundGameMusic);
+    
   }
 
 
@@ -158,8 +156,11 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     if(gameOver) {
       g.drawString("Game Over: " + String.valueOf((int) score), 10, 35);
       g.drawString("Press Spacebar To Restart The Game", 10, 60);
-    } else {
-      g.drawString(String.valueOf((int) score), 10, 35);
+    } else if (startGame == false) {
+      g.drawString("Press Spacebar to Start The Game", 25, 300);
+    }
+     else {
+      g.drawString("Score: " + String.valueOf((int) score), 10, 35);
     }
 
   }
@@ -243,6 +244,16 @@ private void playBackgroundMusic(String soundName) {
 
   @Override
   public void keyPressed(KeyEvent e) {
+    while (startGame == false) {
+      if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+        //game timer
+        gameLoop = new Timer(1000/60, this);
+        gameLoop.start();
+        playBackgroundMusic(backgroundGameMusic);
+        startGame = true;
+        }
+    }
+    
     if (e.getKeyCode() == KeyEvent.VK_SPACE) {
       velocityY = -9;
       playSound(birdSound);
