@@ -83,6 +83,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
   boolean startGame = false;
   boolean gameOver = false;
   double score = 0;
+  double highestScore = 0;
   int pipesSpawningTime = 1500;
 
 
@@ -155,12 +156,14 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     g.setFont(new Font("Arial", Font.PLAIN, 20));
     if(gameOver) {
       g.drawString("Game Over: " + String.valueOf((int) score), 10, 35);
-      g.drawString("Press Spacebar To Restart The Game", 10, 60);
+      g.drawString("Highest Score: " + String.valueOf((int) highestScore), 10, 55);
+      g.drawString("Press Spacebar To Restart The Game", 10, 75);
     } else if (startGame == false) {
       g.drawString("Press Spacebar to Start The Game", 25, 300);
     }
      else {
       g.drawString("Score: " + String.valueOf((int) score), 10, 35);
+      g.drawString("Highest Score: " + String.valueOf((int) highestScore), 10, 55);
     }
 
   }
@@ -204,6 +207,7 @@ private void playBackgroundMusic(String soundName) {
       if(!pipe.passed && bird.x > pipe.x + pipe.width) {
         pipe.passed = true;
         score += 0.5;
+        //increase difficulty every 5 points made
         if(score % 5 == 0) {
           velocityX += -1;
         }
@@ -213,6 +217,9 @@ private void playBackgroundMusic(String soundName) {
 
 
       if(collision(bird, pipe)) {
+        if(score > highestScore) {
+          highestScore = score;
+        }
         gameOver = true;
         playSound(gameOverSound);
       }
