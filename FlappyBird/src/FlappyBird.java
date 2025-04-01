@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -83,8 +84,31 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
   boolean startGame = false;
   boolean gameOver = false;
   double score = 0;
-  double highestScore = 0;
+  static double highestScore = 0;
   int pipesSpawningTime = 1500;
+
+  public static void createFile() {
+    try {
+            File highestScoreFile = new File("highestScore.txt");
+            if(highestScoreFile.createNewFile()) {
+            System.out.println("File created: " + highestScoreFile.getName());
+            } else {
+            System.out.println("File already exists");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred");
+            e.printStackTrace();
+        }
+
+        try {
+            FileWriter myWriter = new FileWriter("highestScore.txt");
+            myWriter.write(String.valueOf(highestScore));
+            myWriter.close();
+            } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+            }
+  }
 
 
   FlappyBird() {
